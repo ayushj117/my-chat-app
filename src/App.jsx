@@ -5,12 +5,12 @@ import Exchange from './Exchange';
 
 const App = () => (
   <>
-  <ApolloProvider client={client}>
+    <ApolloProvider client={client}>
     <div>
       <h2>My first Apollo app</h2>
       <Exchange/>
     </div>
-  </ApolloProvider>
+    </ApolloProvider>
   </>
 );
 export default App;

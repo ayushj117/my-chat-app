@@ -1,18 +1,5 @@
-import ApolloClient from "apollo-boost";
-import gql from "graphql-tag";
+import ApolloClient from 'apollo-boost';
 
 export const client = new ApolloClient({
-  uri: 'https://api.github.com/graphql'
+  uri: "http://localhost:4000/graphql",
 });
-
-client
-  .query({
-    query: gql`
-      {
-        rates(currency: "USD") {
-          currency
-        }
-      }
-    `
-  })
-  .then(result => console.log(result));

@@ -1,31 +1,36 @@
-import React from "react";
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
+import React from 'react';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 
-const ExchangeRates = () => (
-    <>
-  <Query
-    query={gql`
-      {
-        rates(currency: "USD") {
-          currency
-          rate
-        }
-      }
-    `}
-  >
-    {({ loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error) return <p>Error :(</p>;
+export const GET_POSTS = gql`
+  query GetPosts {
+    posts {
+      id
+      author
+      body
+    }
+  }
+`;
 
-      return data.rates.map(({ currency, rate }) => (
-        <div key={currency}>
-          <p>{currency}: {rate}</p>
-        </div>
-      ));
-    }}
+export default () => (
+  <Query query={GET_POSTS}>
+    {({ loading, data }) => !loading && (
+      <>
+        <thead>
+          <tr>
+            <th>Author</th>
+            <th>Body</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.posts.map(post => (
+            <tr key={post.id}>
+              <td>{post.author}</td>
+              <td>{post.body}</td>
+            </tr>
+          ))}
+        </tbody>
+        </>
+    )}
   </Query>
-  </>
 );
-
-export default ExchangeRates;
