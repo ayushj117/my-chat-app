@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.9.2",
+    "@material-ui/icons": "^3.0.2",
     "apollo-boost": "^0.3.1",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
@@ -13,14 +15,16 @@
     "graphql-tag": "^2.10.1",
     "nodemon": "^1.18.10",
     "npm-run-all": "^4.1.5",
+    "prop-types": "^15.7.2",
     "react": "^16.8.4",
     "react-apollo": "^2.5.2",
     "react-dom": "^16.8.4",
-    "react-scripts": "2.1.8"
+    "react-scripts": "2.1.8",
+    "yup": "^0.27.0"
   },
   "scripts": {
     "dev": "babel-node extra --presets env",
-    "start": "npm-run-all --parallel watch:server start:web start-server",
+    "start": "npm-run-all --parallel watch:server start:web start1",
     "start1": "nodemon src/libs/routes/server.js --exec babel-node --presets babel-preset-env",
     "start:web": "react-scripts start",
     "start:server": "node src/libs/routes/server",

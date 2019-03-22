@@ -4,17 +4,21 @@ import { Query } from 'react-apollo';
 
 export const GET_POSTS = gql`
   query GetPosts {
-    posts {
+    getAllUser {
       id
-      author
-      body
+      name
+      password
     }
   }
 `;
 
 export default () => (
   <Query query={GET_POSTS}>
-    {({ loading, data }) => !loading && (
+    {({ loading, error, data }) => {
+      console.log(data);
+      if (loading) return <p>Loading...</p>;
+      if (error) return <p>error...</p>;
+      return !loading && (
       <>
         <thead>
           <tr>
@@ -23,14 +27,15 @@ export default () => (
           </tr>
         </thead>
         <tbody>
-          {data.posts.map(post => (
+          {data.getAllUser.map(post => (
             <tr key={post.id}>
-              <td>{post.author}</td>
-              <td>{post.body}</td>
+              <td>{post.email}</td>
+              <td>{post.password}</td>
             </tr>
           ))}
         </tbody>
         </>
-    )}
+    )
+  }}
   </Query>
 );

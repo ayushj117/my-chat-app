@@ -1,0 +1,12 @@
+type Mutation {
+  addUser(name: String!, friends: [Int]): User!
+}
+
+type Query {
+  getAllUser: [User]!
+  getUser(id: Int!): User!
+}
+
+type Subscription {
+  userAdded: User!
+}

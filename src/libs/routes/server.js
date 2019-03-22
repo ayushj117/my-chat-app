@@ -4,30 +4,47 @@ import graphqlHTTP from 'express-graphql';
 import gql from 'graphql-tag';
 import { buildASTSchema }  from 'graphql';
 
-
-const POSTS = [
-  { author: "John Doe", body: "Hello world" },
-  { author: "Jane Doe", body: "Hi, planet!" },
+//https://developer.okta.com/blog/2018/10/11/build-simple-web-app-with-express-react-graphql
+const USER = [
+  { id: 0, email: "abc@gmail.com", password: "qwerty123", friends: [11, 22] },
+  { id: 1, email: "xyz@gmail.com", password: "qwerty123", friends: [0, 2] },
+  { id: 2, email: "qwerty@gmail.com", password: "qwerty123", friends: [1, 0] },
 ];
+const FRIENDS = [
+  { id : 11, name: "ayush", messages: ["hi"] },
+  { id : 22, name: "hello", messages: ["helloo"] },
+  { id : 33, name: "xyz", messages: ["hi xyz"] },
+]
 
 const schema = buildASTSchema(gql`
+
   type Query {
-    posts: [Post]
-    post(id: ID!): Post
+    getAllUser: [User]!
+    getUser(id: Int!): User!
+    getFriend: [Friends]!
   }
 
-  type Post {
-    id: ID
-    author: String
-    body: String
+  type User{
+  id: Int
+  email: String!
+  password: String!
+  friends: [Friends]
+}
+  type Friends {
+    id: Int
+    name: String!
+    messages: [String]
   }
 `);
 
-const mapPost = (post, id) => post;
+const mapPost = (value, id) => value;
+
 
 const root = {
-  posts: () => POSTS.map(mapPost),
-  post: ({ id }) => mapPost(POSTS[id], id),
+  getAllUser: () => USER,
+  getFriend: () => FRIENDS,
+  getUser: ({ id }) => mapPost(USER[id], id),
+  get1: ({ id }) => mapPost(FRIENDS[id], id),
 };
 
 const app = express();
