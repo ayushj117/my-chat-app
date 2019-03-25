@@ -6,6 +6,7 @@
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.2",
     "apollo-boost": "^0.3.1",
+    "apollo-server": "^2.4.8",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "cors": "^2.8.5",
@@ -25,10 +26,10 @@
   "scripts": {
     "dev": "babel-node extra --presets env",
     "start": "npm-run-all --parallel watch:server start:web start1",
-    "start1": "nodemon src/libs/routes/server.js --exec babel-node --presets babel-preset-env",
+    "start1": "nodemon src/Server/server.js --exec babel-node --presets babel-preset-env",
     "start:web": "react-scripts start",
     "start:server": "node src/libs/routes/server",
-    "watch:server": "nodemon --watch src/libs/routes/server src/libs/routes/server",
+    "watch:server": "nodemon --watch src/Server/server src/Server/server",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
