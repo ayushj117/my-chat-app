@@ -27,6 +27,9 @@ export default class TraineeList extends React.Component {
 
   handleSubmit = (form) => {
     this.setState({ open: false, openList: true, data: form });
+    // const { history } = this.props;
+    // console.log('----31----', typeof form.email, this.props);
+    // history.push(`/login/${form.email}`);
     console.log('@@@', form);
   };
 
@@ -35,6 +38,7 @@ export default class TraineeList extends React.Component {
     return (
           <>
             <div>
+              <h2><center>Chat App</center></h2>
               <div style={{ margin: 20, textAlign: 'center' }}>
                 <Button
                   variant="outlined"

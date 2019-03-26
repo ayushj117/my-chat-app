@@ -1,18 +1,34 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import {
+  Table,
+} from '@material-ui/core';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 
-
 const styles = theme => ({
-  textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+  root: {
+    width: '96%',
+    margin: theme.spacing.unit * 3,
+    overflowX: 'auto',
   },
-  error: {
-    color: 'red',
-    margin: 10,
+  table: {
+    minWidth: 700,
+  },
+  row: {
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.background.default,
+    },
+    cursor: 'pointer',
+  },
+  iconButton: {
+    display: 'flex',
   },
 });
 
@@ -51,56 +67,76 @@ class FriendsList extends React.Component {
     onClose(false);
   };
 
-  render() {
+  handleSelect = ID => () => {
     const { result } = this.props;
-    let final = {};
-  const GET_USER = gql`
-  query {
-    getAllUser {
-      id
-      email
-      password
+    console.log('inside select handler', result);
+  }
+
+  render() {
+    const { result, classes } = this.props;
+    const { email } = result;
+    let final=[];
+  const GET_FRIENDS = gql`
+  query FRIENDS($email: String!){
+    friends(email: $email) {
+      name
     }
   }
 `;
 
     return (
       <>
-        <Query query={GET_USER}>
+        <Query query={GET_FRIENDS} variables={{ email }}>
     {({ loading, error, data }) => {
-      console.log('%%%%', data.getAllUser);
+      console.log('%%%%', data.friends);
       if (loading) return <p>Loading...</p>;
-      if (error) return <p>error...</p>;
-      data.getAllUser.forEach((user) => {
-      console.log('####', user);
-      if (result.email === user.email) {
-        final = user;
-      }
-    })
-    console.log('-----------===', final);
-    console.log('//////////', Object.values(final));
-    
+      if (error) return <p>`error...${error.message}`</p>;
+      Object.values(data.friends).forEach((res) => {
+        if(typeof res === 'object'){
+          final = res
+          console.log('!!!!', final);
+        }
+      })
         return !loading && (
           <>
-          <thead>
-            <tr>
-              <th>a</th>
-              <th>v</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.values(final).map(post => (
-              <tr key={post}>
-                <td>{post}</td>
-                <td>{post}</td>
-              </tr>
-            ))}
-          </tbody>
+                  <Paper className={classes.root}>
+          <div className={classes.tableWrapper}>
+            <Table className={classes.table}>
+              <TableHead>
+                <TableRow key="col">
+                    <React.Fragment>
+                      <TableCell
+                        align="center"
+                      >
+                        NAMES
+                      </TableCell>
+                    </React.Fragment>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(final).map(row => (
+                  <TableRow
+                    className={classes.row}
+                    key={row}
+                    hover
+                  >
+                      <TableCell
+                        align="center"
+                        key={row.name}
+                        // eslint-disable-next-line no-underscore-dangle
+                        onClick={this.handleSelect(row)}
+                      >
+                        {row}
+                      </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Paper>
           </>
               )
-      
-    
-
           }}
           </Query>
       </>
