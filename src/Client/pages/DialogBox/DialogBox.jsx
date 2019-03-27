@@ -29,7 +29,7 @@ export default class TraineeList extends React.Component {
     this.setState({ open: false, openList: true, data: form });
     // const { history } = this.props;
     // console.log('----31----', typeof form.email, this.props);
-    // history.push(`/login/${form.email}`);
+    // history.push(`/login/${form.password}`);
     console.log('@@@', form);
   };
 
@@ -55,7 +55,7 @@ export default class TraineeList extends React.Component {
                 onSubmit={this.handleSubmit}
               />
               {
-                (openList) ? <FriendsList result={data} /> : ''
+                (openList) ? <FriendsList result={data} {...this.props} /> : ''
               }
             </div>
             

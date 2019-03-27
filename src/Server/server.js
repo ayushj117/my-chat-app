@@ -7,10 +7,12 @@ const typeDefs = gql`
     getUser(id: Int!): User!
     getFriends(id: Int!): User!
     friends(email: String!): Friends!
+    getMessage(to: String!, from: String!, data: String!): Message!
+
   }
 
   type Mutation {
-    addMessage(to: Int!, from: Int!, data: String!): Message!
+    addMessage(to: String!, from: String!, data: String!): Message!
   }
 
   type Friends {
@@ -27,9 +29,10 @@ const typeDefs = gql`
   }
 
   type Message {
-    to: Int!
-    from: Int!
-    message: [String]
+    to: String!
+    from: String!
+    fromMessage: [String]
+    toMessage: [String]
   }
 `;
 
@@ -62,6 +65,23 @@ const resolvers = {
 
       return USER;
     },
+
+    getMessage: (parent, { to, from, data }, context, info) => {
+      console.log("sd222", to, from, data);
+      let result;
+      USER.forEach(res => {
+        res.messages.forEach(msg => {
+          console.log("2222", msg, to);
+          if (msg.to === to) {
+            result = msg;
+            console.log("sddas", msg);
+          }
+        });
+      });
+      console.log('-----97---', result);
+      return result;
+    },
+
     friends: (parent, { email }) => {
       let list = [];
       USER.forEach(res => {
@@ -90,7 +110,7 @@ const resolvers = {
         res.messages.forEach(msg => {
           console.log("2222", msg, to);
           if (msg.to === to) {
-            msg.message.push(data);
+            msg.toMessage.push(data);
             result = msg;
             console.log("sddas", msg);
           }
@@ -98,7 +118,7 @@ const resolvers = {
       });
       console.log('-----97---', result);
       return result;
-    }
+    },
   }
 };
 
