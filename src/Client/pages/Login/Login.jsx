@@ -98,7 +98,7 @@ class Login extends React.Component {
       showPassword: false,
       loader: false,
       form: {
-        name: '',
+        password: '',
         email: '',
       },
       error: {
