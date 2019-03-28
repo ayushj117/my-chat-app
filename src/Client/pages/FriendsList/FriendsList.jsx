@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Table } from "@material-ui/core";
+import { Table, CircularProgress } from "@material-ui/core";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
@@ -85,7 +85,7 @@ class FriendsList extends React.Component {
         <Query query={GET_FRIENDS} variables={{ email }}>
           {({ loading, error, data }) => {
             console.log("%%%%", data.friends);
-            if (loading) return <p>Loading...</p>;
+            if (loading) return <p>Loading...<CircularProgress size={24} thickness={4} /></p>;
             if (error) return <p>`error...${error.message}`</p>;
             Object.values(data.friends).forEach(res => {
               if (typeof res === "object") {

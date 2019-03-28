@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { CircularProgress } from "@material-ui/core";
 import Chat from '../Chat';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -49,7 +50,7 @@ export default class TraineeList extends React.Component {
           <>
           <Query query={GET_MESSAGES} variables={{ name, email, data }}>
           {({ loading, error, data }) => {
-            if (loading) return <p>Loading......</p>;
+            if (loading) return <p>Loading......<CircularProgress size={24} thickness={4} /></p>;
             if (error) return <p>An error occurred..{error.message}</p>;
             console.log('--------', typeof data.getMessage.message);
             Object.values(data.getMessage).forEach((res) => {
