@@ -8,7 +8,8 @@ import {
   Fab,
   Button,
   CircularProgress,
-  TextField
+  TextField,
+  Chip,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import Paper from "@material-ui/core/Paper";
@@ -39,7 +40,8 @@ const styles = theme => ({
   },
   card: {
     minWidth: 275,
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
+    maxHeight: "50%",
   },
   title: {
     fontSize: 14
@@ -51,7 +53,7 @@ const styles = theme => ({
     textAlign: "right"
   },
   fromChat: {
-    textAlign: "right"
+    textAlign: "right",
   }
 });
 
@@ -72,6 +74,11 @@ class Chat extends React.Component {
     this.state = {
       typedMessage: ""
     };
+  }
+
+  componentDidMount() {
+    console.log("asdasdasasfdasfasfd", this.props.subscribeToNewComments());
+    this.props.subscribeToNewComments();
   }
 
   handleChange = () => event => {
@@ -125,6 +132,14 @@ class Chat extends React.Component {
       }
     `;
 
+    const GET_MESSAGES = gql`
+      query MESSAGES($name: String!, $email: String!) {
+        getMessage(to: $name, from: $email) {
+          toMessage
+        }
+      }
+    `;
+
     const MESSAGE_SUBSCRIPTION = gql`
       subscription messageAdded($email: String!) {
         messageAdded(from: $email) {
@@ -136,144 +151,148 @@ class Chat extends React.Component {
     return (
       <>
         <Query query={SHOW_NAME} variables={{ email }}>
-          {({ loading, error, data, subscribeToMore }) => {
-            if (loading) return <p>Loading...</p>;
+          {({ loading, error, data }) => {
+            if (loading) return <p>Loading...-------------</p>;
             if (error) return <p>Error :(</p>;
             let fromName = data.getUser.name;
             console.log("-====--=-=-131=-=-=", data.getUser.name);
             return (
-              !loading && (
-                <>
-                  <Mutation
-                    mutation={ADD_MESSAGES}
-                    variables={{ name, email, typedMessage }}
-                  >
-                    {(addMessage, { loading, error, data }) => {
-                      if (loading)
-                        return (
-                          <p>
-                            Loading......
-                            <CircularProgress size={24} thickness={4} />
-                          </p>
-                        );
-                      if (error)
-                        return <p>An error occurred..{error.message}</p>;
-                      console.log("--------", data);
-                      if (data) {
-                        Object.values(data).map(res => {
-                          Object.values(res).map(arr => {
-                            if (typeof arr === "object") {
-                              final = arr;
-                            }
-                          });
-                        });
-                      }
-
+              <>
+                <Mutation
+                  mutation={ADD_MESSAGES}
+                  variables={{ name, email, typedMessage }}
+                >
+                  {(addMessage, { loading, error, data }) => {
+                    if (loading)
                       return (
-                        !loading && (
-                          <>
-       {/*                                    <Subscription
-                                    subscription={MESSAGE_SUBSCRIPTION}
-                                    variables={{ email }}
-                                  >
-                                      {({ data, loading }) => {
-                                        console.log('inside ------subs9----', data);
-                                        return (
-                                      <h4>New comment: {!loading && data}</h4>
-                                        );
-                                      }}
-                                    </Subscription> */}
+                        <p>
+                          Loading......
+                          <CircularProgress size={24} thickness={4} />
+                        </p>
+                      );
+                    if (error) return <p>An error occurred..{error.message}</p>;
 
-                            <Paper className={classes.root}>
-                              <div className={classes.nav}>
-                                <AppBar position="static">
-                                  <Toolbar>
-                                    <Avatar className={classes.avatar}>
-                                      A
-                                    </Avatar>
-                                    <Typography
-                                      variant="h6"
-                                      color="inherit"
-                                      className={classes.grow}
-                                    >
-                                      {match.params.name}
-                                    </Typography>
-                                    <Fab
-                                      size="small"
-                                      color="secondary"
-                                      aria-label="Add"
-                                      onClick={e => this.handleBack(e)}
-                                    >
-                                      <KeyboardBackspace />
-                                    </Fab>
-                                  </Toolbar>
-                                </AppBar>
-                              </div>
-                              <Card className={classes.card}>
-                                <CardContent>
-                                  {msgData.map(msg => (
-                                    <>
-                                      <Typography
-                                        className={classes.pos}
-                                        color="textSecondary"
-                                        variant="caption"
-                                      >
-                                        {match.params.name}
-                                      </Typography>
-                                      <Typography
-                                        className={classes.pos}
-                                        variant="body2"
-                                        gutterBottom
-                                      >
-                                        {msg}
-                                      </Typography>
-                                    </>
-                                  ))}
-                                  <div className={classes.fromChat}>
-                  
-                                    {final.map(tomsg => (
-                                      <>
+                    return (
+                      <>
+                        <Query
+                          query={GET_MESSAGES}
+                          variables={{ name, email }}
+                          // pollInterval={300}
+                        >
+                          {({ loading, error, data }) => {
+                            console.log("---a=das-d=ad-as&&&&&&&&");
+                            if (loading) return <p>Loading...-------------</p>;
+                            if (error) return <p>Error :({error.message}</p>;
+                            Object.values(data.getMessage).forEach(res => {
+                              if (typeof res === "object") {
+                                final = res;
+                                console.log("!!!!", final);
+                              }
+                            });
+                            return (
+                              <>
+                                <Paper className={classes.root}>
+                                  <div className={classes.nav}>
+                                    <AppBar position="static">
+                                      <Toolbar>
+                                        <Avatar className={classes.avatar}>
+                                          A
+                                        </Avatar>
+                                        <Typography
+                                          variant="h6"
+                                          color="inherit"
+                                          className={classes.grow}
+                                        >
+                                          {match.params.name}
+                                        </Typography>
+                                        <Fab
+                                          size="small"
+                                          color="secondary"
+                                          aria-label="Add"
+                                          onClick={e => this.handleBack(e)}
+                                        >
+                                          <KeyboardBackspace />
+                                        </Fab>
+                                      </Toolbar>
+                                    </AppBar>
+                                  </div>
+                                  <Card className={classes.card}>
+                                    <CardContent>
+                                      {msgData.map(msg => (
+                                        <>
                                           <Typography
                                             className={classes.pos}
                                             color="textSecondary"
                                             variant="caption"
                                           >
-                                            {fromName}
+                                            {match.params.name}
                                           </Typography>
-                                          <Typography
+                                          {/* <Typography
                                             className={classes.pos}
                                             variant="body2"
                                             gutterBottom
                                           >
-                                            {tomsg}
-                                          </Typography>
-                                      </>
-                                    ))}
-                                  </div>
-                                </CardContent>
-                              </Card>
-                              <TextField
-                                className={classes.textField}
-                                margin="normal"
-                                placeholder="Start Typing"
-                                onChange={this.handleChange()}
-                              />
-                              <Fab
-                                color="primary"
-                                aria-label="Add"
-                                className={classes.fab}
-                                onClick={e => this.handleClick(e, addMessage)}
-                              >
-                                <SendIcon />
-                              </Fab>
-                            </Paper>
-                          </>
-                        )
-                      );
-                    }}
-                  </Mutation>
-                </>
-              )
+                                            {msg}
+                                          </Typography> */}
+                                          <Chip
+                                              label={msg}
+                                              color="secondary"
+                                              variant="outlined"
+                                            />
+                                        </>
+                                      ))}
+                                      <div className={classes.fromChat}>
+                                        {final.map(tomsg => (
+                                          <>
+                                            <Typography
+                                              className={classes.pos}
+                                              color="textSecondary"
+                                              variant="caption"
+                                            >
+                                              {fromName}
+                                            </Typography>
+                                            {/* <Typography
+                                              className={classes.pos}
+                                              variant="body2"
+                                              gutterBottom
+                                            >
+                                              {tomsg}
+                                            </Typography> */}
+                                            <Chip
+                                              label={tomsg}
+                                              color="secondary"
+                                            />
+                                          </>
+                                        ))}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                  <TextField
+                                    className={classes.textField}
+                                    margin="normal"
+                                    placeholder="Start Typing"
+                                    onChange={this.handleChange()}
+                                  />
+                                  <Fab
+                                    color="primary"
+                                    aria-label="Add"
+                                    className={classes.fab}
+                                    onClick={e =>
+                                      this.handleClick(e, addMessage)
+                                    }
+                                  >
+                                    <SendIcon />
+                                  </Fab>
+                                </Paper>
+                              </>
+                            );
+                          }}
+                        </Query>
+                      </>
+                    );
+                  }}
+                </Mutation>
+              </>
             );
           }}
         </Query>

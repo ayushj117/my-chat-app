@@ -8,11 +8,11 @@ const typeDefs = gql`
     getUser(email: String!): User!
     getFriends(id: Int!): User!
     friends(email: String!): Friends!
-    getMessage(to: String!, from: String!, data: String!): Message!
+    getMessage(to: String!, from: String!): Message!
   }
 
   type Subscription {
-    messageAdded(from: String!): Message!
+    messageAdded: Message!
   }
 
   type Mutation {
@@ -63,12 +63,10 @@ const resolvers = {
       return result;
     },
      getAllUser: async parent => {
-      console.log("sds---34---", USER[0].friends[0].id);
-
       return await USER;
     },
 
-    getMessage: (parent, { to, from, data }, context, info) => {
+    getMessage: (parent, { to, from}, context, info) => {
       let result;
       USER.forEach(res => {
         res.messages.forEach(msg => {
@@ -77,7 +75,7 @@ const resolvers = {
           }
         });
       });
-      console.log("-----97---", result);
+      console.log("-----78---", result);
       return result;
     },
 
@@ -100,11 +98,7 @@ const resolvers = {
   },
   Subscription: {
     messageAdded: {
-      // Additional event labels can be passed to asyncIterator creation
-      subscribe: () => {
-        console.log('asda inside subs' );
-        pubsub.asyncIterator([MESSAGE_ADDED]);
-      } 
+      subscribe: () => pubsub.asyncIterator([MESSAGE_ADDED]),
     }
   },
   Mutation: {
@@ -119,7 +113,7 @@ const resolvers = {
         });
       });
       pubsub.publish(MESSAGE_ADDED, { messageAdded: result });
-      console.log("-----97---", result);
+      console.log("-----116---", result);
       return result;
     }
   }
@@ -127,7 +121,8 @@ const resolvers = {
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  context:{pubsub},
 });
 
 server.listen().then(({ url }) => {

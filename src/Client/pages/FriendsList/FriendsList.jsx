@@ -84,7 +84,6 @@ class FriendsList extends React.Component {
       <>
         <Query query={GET_FRIENDS} variables={{ email }}>
           {({ loading, error, data }) => {
-            console.log("%%%%", data.friends);
             if (loading) return <p>Loading...<CircularProgress size={24} thickness={4} /></p>;
             if (error) return <p>`error...${error.message}`</p>;
             Object.values(data.friends).forEach(res => {
@@ -104,7 +103,6 @@ class FriendsList extends React.Component {
                             <React.Fragment>
                               <TableCell align="center">NAMES</TableCell>
                             </React.Fragment>
-                            <TableCell />
                           </TableRow>
                         </TableHead>
                         <TableBody>
