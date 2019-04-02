@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { CircularProgress } from "@material-ui/core";
 import Chat from '../Chat';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 
 
-export default class TraineeList extends React.Component {
+export default class Message extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -35,33 +36,64 @@ export default class TraineeList extends React.Component {
   render() {
     let final=[];
     const GET_MESSAGES = gql`
-    query MESSAGES($name: String!, $email: String!, $data: String! ){
-      getMessage(to: $name, from: $email, data: $data) {
+    query MESSAGES($name: String!, $email: String! ){
+      getMessage(to: $name, from: $email) {
+        toMessage
         fromMessage
         }
     }
   `;
+
+  const MESSAGE_SUBSCRIPTION = gql`
+  subscription messageAdded {
+    messageAdded {
+      toMessage
+    }
+  }
+`;
+
     const { match } = this.props;
     const { params } = match;
     const { name, email } = params;
-    let data = "ayush";
     return (
           <>
-          <Query query={GET_MESSAGES} variables={{ name, email, data }}>
-          {({ loading, error, data }) => {
-            if (loading) return <p>Loading......</p>;
+          <Query query={GET_MESSAGES} variables={{ name, email}}>
+          {({ loading, error, data, subscribeToMore }) => {
+            if (loading) return <p>Loading......<CircularProgress size={24} thickness={4} /></p>;
             if (error) return <p>An error occurred..{error.message}</p>;
-            console.log('--------', typeof data.getMessage.message);
-            Object.values(data.getMessage).forEach((res) => {
-              if(typeof res === 'object'){
-                final = res
-                console.log('!!!!', final);
-              }
-            })
+            console.log('--------', data.getMessage);
+            let arr = Object.values(data.getMessage);
+            // Object.values(data.getMessage).find((res) => {
+              // console.log('inside find########', typeof res);
+              final = arr[1]
+              console.log('final', final);
+              // if(typeof res === 'object'){
+              //   final = res
+              //   console.log('!!!!', final);
+              // }
+            // })
 
-            return !loading && (
+            return (
               <>
-              <Chat msgData={final} {...this.props} />
+              <Chat
+              msgData={final} 
+              {...this.props} 
+              subscribeToNewComments={() =>
+                subscribeToMore({
+                  document: MESSAGE_SUBSCRIPTION,
+                  updateQuery: (prev, { subscriptionData }) => {
+                    if (!subscriptionData.data) return prev;
+                    const newMessage = subscriptionData.data.messageAdded.toMessage;
+                    console.log('inside message subscribe', newMessage);
+                    return  {
+                      getMessage: {
+                        toMessage: newMessage
+                      }
+                    };
+                  }
+                })
+              }
+              />
               </>
             );
 
@@ -73,6 +105,6 @@ export default class TraineeList extends React.Component {
   }
 }
 
-TraineeList.propTypes = {
+Message.propTypes = {
   history: PropTypes.objectOf(PropTypes.objectOf).isRequired,
 };
