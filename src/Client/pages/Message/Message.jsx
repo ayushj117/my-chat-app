@@ -52,15 +52,16 @@ export default class Message extends React.Component {
   }
 `;
 
-    const { match } = this.props;
-    const { params } = match;
-    const { name, email } = params;
+const name = localStorage.getItem('name');
+const email = localStorage.getItem('email');
+console.log('sdasd', email, name)
+
     return (
           <>
           <Query query={GET_MESSAGES} variables={{ name, email}}>
           {({ loading, error, data, subscribeToMore }) => {
             if (loading) return <p>Loading......<CircularProgress size={24} thickness={4} /></p>;
-            if (error) return <p>An error occurred..{error.message}</p>;
+            if (error) return <p>An error occurred..--- inside message query --{error.message}</p>;
             console.log('--------', data.getMessage);
             let arr = Object.values(data.getMessage);
             // Object.values(data.getMessage).find((res) => {

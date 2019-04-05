@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Table, CircularProgress, Button } from "@material-ui/core";
+import { Table, CircularProgress } from "@material-ui/core";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
@@ -27,10 +27,7 @@ const styles = theme => ({
   },
   iconButton: {
     display: "flex"
-  },
-  button: {
-    margin: theme.spacing.unit,
-  },
+  }
 });
 
 const propTypes = {
@@ -65,23 +62,15 @@ class FriendsList extends React.Component {
   };
 
   handleSelect = ID => () => {
-    const { history } = this.props;
-    window.localStorage.setItem("name", ID);
-
-    const email = localStorage.getItem("email");
-    history.push(`/login/${email}/${ID}`);
-  };
-
-
-  AddFriends = () => {
-    const { history } = this.props;
-    const email = localStorage.getItem("email");
-    history.push(`/login/${email}/addFriends`);
+    const { result, history } = this.props;
+    console.log("inside list----", this.props);
+    console.log("inside select handler", result);
+    history.push(`/login/${result.email}/${ID}`);
   };
 
   render() {
-    const { classes } = this.props;
-    const email = localStorage.getItem("email");
+    const { result, classes } = this.props;
+    const { email } = result;
     let final = [];
     const GET_FRIENDS = gql`
       query FRIENDS($email: String!) {
@@ -95,13 +84,7 @@ class FriendsList extends React.Component {
       <>
         <Query query={GET_FRIENDS} variables={{ email }}>
           {({ loading, error, data }) => {
-            if (loading)
-              return (
-                <p>
-                  Loading...
-                  <CircularProgress size={24} thickness={4} />
-                </p>
-              );
+            if (loading) return <p>Loading...<CircularProgress size={24} thickness={4} /></p>;
             if (error) return <p>`error...${error.message}`</p>;
             Object.values(data.friends).forEach(res => {
               if (typeof res === "object") {
@@ -112,14 +95,6 @@ class FriendsList extends React.Component {
             return (
               !loading && (
                 <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.button}
-                    onClick={this.AddFriends}
-                  >
-                    Add Friends
-                  </Button>
                   <Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
                       <Table className={classes.table}>

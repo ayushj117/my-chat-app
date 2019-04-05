@@ -19,6 +19,8 @@ import Typography from "@material-ui/core/Typography";
 import { KeyboardBackspace } from "@material-ui/icons";
 import gql from "graphql-tag";
 import { Query, Mutation, Subscription } from "react-apollo";
+import LeftTextfield from '../../component';
+import RightTextfield from '../../component/RightTextfield';
 
 const styles = theme => ({
   root: {
@@ -33,7 +35,7 @@ const styles = theme => ({
     flexGrow: 1
   },
   textField: {
-    width: "90%",
+    width: "80%",
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
     marginBottom: theme.spacing.unit * 2
@@ -107,9 +109,8 @@ class Chat extends React.Component {
     const { classes } = this.props;
     console.log("inside list----", this.props);
     const { typedMessage } = this.state;
-    const { match } = this.props;
-    const { params } = match;
-    const { name, email } = params;
+    const name = localStorage.getItem('name');
+    const email = localStorage.getItem('email');
     const { msgData } = this.props;
     let final = [];
     const ADD_MESSAGES = gql`
@@ -170,7 +171,7 @@ class Chat extends React.Component {
                           <CircularProgress size={24} thickness={4} />
                         </p>
                       );
-                    if (error) return <p>An error occurred..{error.message}</p>;
+                    if (error) return <p>An error occurred.. inside mutation --{error.message}</p>;
 
                     return (
                       <>
@@ -203,7 +204,7 @@ class Chat extends React.Component {
                                           color="inherit"
                                           className={classes.grow}
                                         >
-                                          {match.params.name}
+                                          {name}
                                         </Typography>
                                         <Fab
                                           size="small"
@@ -225,20 +226,9 @@ class Chat extends React.Component {
                                             color="textSecondary"
                                             variant="caption"
                                           >
-                                            {match.params.name}
+                                            {name}
                                           </Typography>
-                                          {/* <Typography
-                                            className={classes.pos}
-                                            variant="body2"
-                                            gutterBottom
-                                          >
-                                            {msg}
-                                          </Typography> */}
-                                          <Chip
-                                              label={msg}
-                                              color="secondary"
-                                              variant="outlined"
-                                            />
+                                          <LeftTextfield text={msg} />
                                         </>
                                       ))}
                                       <div className={classes.fromChat}>
@@ -258,6 +248,7 @@ class Chat extends React.Component {
                                             >
                                               {tomsg}
                                             </Typography> */}
+                                            {/* <RightTextfield text={tomsg} /> */}
                                             <Chip
                                               label={tomsg}
                                               color="secondary"

@@ -2,12 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Avatar, Button, TextField,
- IconButton, InputAdornment, Paper, Typography,
+  IconButton, InputAdornment, Paper, Typography,
 } from '@material-ui/core';
 import {
-  Visibility, VisibilityOff, Email,
+  Visibility, VisibilityOff, Email, AccountCircle, People,
 } from '@material-ui/icons';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import withStyles from '@material-ui/core/styles/withStyles';
 
 
@@ -58,6 +57,7 @@ class Login extends React.Component {
     this.state = {
       showPassword: false,
       form: {
+        name: '',
         password: '',
         email: '',
       },
@@ -82,8 +82,8 @@ handleSubmit =  (e) => {
   const { form } = this.state;
   const { history } = this.props;
 
-    window.localStorage.setItem('email', form.email);
-    history.push(`/login/${form.email}`);
+    window.localStorage.setItem('token', form);
+    history.push('/trainee');
 }
 
 
@@ -95,12 +95,27 @@ render() {
       <main {...rest} className={classes.main}>
         <Paper className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <AccountCircle />
           </Avatar>
           <Typography component="h1" variant="h5">
-          Log in
+          Sign Up
           </Typography>
           <form className={classes.form}>
+          <TextField
+              fullWidth
+              id="outlined-name-input"
+              label="name Address"
+              className={classes.textField}
+              type="name"
+              name="name"
+              autoComplete="name"
+              margin="normal"
+              variant="outlined"
+              onChange={this.handleChange('name')}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><People /></InputAdornment>,
+              }}
+            />
             <TextField
               fullWidth
               id="outlined-email-input"
@@ -149,7 +164,7 @@ render() {
                       this.handleSubmit(e);
                     }}
                   >
-                  <b>SIGN IN</b>
+                  <b>SIGN UP</b>
                   </Button>
           </form>
         </Paper>
