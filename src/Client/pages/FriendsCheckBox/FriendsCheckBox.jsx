@@ -1,33 +1,19 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
-import { Table, CircularProgress } from "@material-ui/core";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import gql from "graphql-tag";
-import { Query } from "react-apollo";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import {
+  Button, Checkbox, Dialog, DialogActions, DialogContent, FormControlLabel,
+  DialogTitle,
+} from '@material-ui/core';
+import {
+  Person, Visibility, VisibilityOff, Email,
+} from '@material-ui/icons';
 
 const styles = theme => ({
-  root: {
-    width: "96%",
-    margin: theme.spacing.unit * 3,
-    overflowX: "auto"
+  textField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
   },
-  table: {
-    minWidth: 700
-  },
-  row: {
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.background.default
-    },
-    cursor: "pointer"
-  },
-  iconButton: {
-    display: "flex"
-  }
 });
 
 const propTypes = {
@@ -35,25 +21,45 @@ const propTypes = {
   onClose: PropTypes.func.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object,
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func.isRequired,
 };
 
 // default values for props:
 const defaultProps = {
   open: false,
-  classes: {}
+  classes: {},
 };
 
-class FriendsList extends React.Component {
+class FriendsCheckBox extends React.Component {
+
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      checkedItems: new Map(),
+    };
   }
 
-  handleSubmit = (e, values) => {
-    const { form } = this.state;
-    const { onSubmit } = this.props;
-    onSubmit(form);
+  handleChange = field => (e) => {
+    const item = e.target.name;
+    const isChecked = e.target.checked;
+    this.setState(prevState => ({ checkedItems: prevState.checkedItems.set(item, isChecked) }));
+  };
+
+  handleClickShowPassword = () => {
+    const { showPassword } = this.state;
+    this.setState({ showPassword: !showPassword });
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const { onSubmit, history } = this.props;
+    let checkedFriends = [];
+    const { checkedItems } = this.state;
+    for (var key of checkedItems.keys()) {
+      console.log(key);
+      checkedFriends.push(key);
+    }
+    onSubmit(checkedFriends);
   };
 
   handleClose = () => {
@@ -61,78 +67,58 @@ class FriendsList extends React.Component {
     onClose(false);
   };
 
-  handleSelect = ID => () => {
-    const { result, history } = this.props;
-    console.log("inside list----", this.props);
-    console.log("inside select handler", result);
-    history.push(`/login/${result.email}/${ID}`);
-  };
-
   render() {
-    const { result, classes } = this.props;
-    const { email } = result;
-    let final = [];
-    const GET_FRIENDS = gql`
-      query FRIENDS($email: String!) {
-        friends(email: $email) {
-          name
-        }
-      }
-    `;
-
+    const { open, classes } = this.props;
+    const friends = localStorage.getItem('friends');
     return (
       <>
-        <Query query={GET_FRIENDS} variables={{ email }}>
-          {({ loading, error, data }) => {
-            if (loading) return <p>Loading...<CircularProgress size={24} thickness={4} /></p>;
-            if (error) return <p>`error...${error.message}`</p>;
-            Object.values(data.friends).forEach(res => {
-              if (typeof res === "object") {
-                final = res;
-                console.log("!!!!", final);
+        <Dialog
+          fullWidth
+          maxWidth="md"
+          open={open}
+          onClose={this.handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Add Friends</DialogTitle>
+          <DialogContent>
+          {
+            friends.map(item => (
+              <>
+              <FormControlLabel
+              control={
+                <Checkbox
+                  checked={this.state.checkedItems.get(item)}
+                  onChange={this.handleChange}
+                  value={item}
+                  color="primary"
+                />
               }
-            });
-            return (
-              !loading && (
-                <>
-                  <Paper className={classes.root}>
-                    <div className={classes.tableWrapper}>
-                      <Table className={classes.table}>
-                        <TableHead>
-                          <TableRow key="col">
-                            <React.Fragment>
-                              <TableCell align="center">NAMES</TableCell>
-                            </React.Fragment>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {final.map(row => (
-                            <TableRow className={classes.row} key={row} hover>
-                              <TableCell
-                                align="center"
-                                key={row.name}
-                                // eslint-disable-next-line no-underscore-dangle
-                                onClick={this.handleSelect(row)}
-                              >
-                                {row}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </Paper>
-                </>
-              )
-            );
-          }}
-        </Query>
+              label={item}
+            />
+            </>
+            ))
+          }
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+                Cancel
+            </Button>
+                <Button
+                  color="primary"
+                  onClick={(e) => {
+                    this.handleSubmit(e);
+                  }}
+                >
+                  <b>Add</b>
+                </Button>
+          </DialogActions>
+        </Dialog>
       </>
     );
   }
 }
 
-FriendsList.propTypes = propTypes;
-FriendsList.defaultProps = defaultProps;
+FriendsCheckBox.propTypes = propTypes;
+FriendsCheckBox.defaultProps = defaultProps;
 
-export default withStyles(styles)(FriendsList);
+export default withStyles(styles)(FriendsCheckBox);

@@ -9,6 +9,7 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
+import FriendsCheckBox from "../FriendsCheckBox";
 
 const styles = theme => ({
   root: {
@@ -29,8 +30,8 @@ const styles = theme => ({
     display: "flex"
   },
   button: {
-    margin: theme.spacing.unit,
-  },
+    margin: theme.spacing.unit
+  }
 });
 
 const propTypes = {
@@ -50,18 +51,16 @@ const defaultProps = {
 class FriendsList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      open: false,
+      friends: []
+    };
   }
 
   handleSubmit = (e, values) => {
     const { form } = this.state;
     const { onSubmit } = this.props;
     onSubmit(form);
-  };
-
-  handleClose = () => {
-    const { onClose } = this.props;
-    onClose(false);
   };
 
   handleSelect = ID => () => {
@@ -72,17 +71,25 @@ class FriendsList extends React.Component {
     history.push(`/login/${email}/${ID}`);
   };
 
+  handleClickOpen = () => {
+    this.setState({ open: true });
+  };
 
-  AddFriends = () => {
-    const { history } = this.props;
-    const email = localStorage.getItem("email");
-    history.push(`/login/${email}/addFriends`);
+  handleClose = value => {
+    this.setState({ open: value });
+  };
+
+  handleSubmit = friends => {
+    console.log("-------", friends);
+    this.setState({ open: false, friends });
   };
 
   render() {
+    const { open, friends } = this.state;
     const { classes } = this.props;
     const email = localStorage.getItem("email");
     let final = [];
+    let addedFriends = [];
     const GET_FRIENDS = gql`
       query FRIENDS($email: String!) {
         friends(email: $email) {
@@ -90,6 +97,14 @@ class FriendsList extends React.Component {
         }
       }
     `;
+
+    const ADDED_FRIENDS = gql`
+    query GETFRIENDS($email: String!, friend: [String]!) {
+      getFriends(email: String!, friend: [String]!) {
+        name
+      }
+    }
+  `;
 
     return (
       <>
@@ -109,17 +124,27 @@ class FriendsList extends React.Component {
                 console.log("!!!!", final);
               }
             });
+            window.localStorage.setItem("friends", final);
             return (
               !loading && (
                 <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.button}
-                    onClick={this.AddFriends}
-                  >
-                    Add Friends
-                  </Button>
+                  <div>
+                    <div style={{ margin: 10, textAlign: "right" }}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={this.handleClickOpen}
+                      >
+                        Add Friends
+                      </Button>
+                    </div>
+                    <FriendsCheckBox
+                      open={open}
+                      {...this.props}
+                      onClose={this.handleClose}
+                      onSubmit={this.handleSubmit}
+                    />
+                  </div>
                   <Paper className={classes.root}>
                     <div className={classes.tableWrapper}>
                       <Table className={classes.table}>
@@ -135,7 +160,7 @@ class FriendsList extends React.Component {
                             <TableRow className={classes.row} key={row} hover>
                               <TableCell
                                 align="center"
-                                key={row.name}
+                                key={row}
                                 // eslint-disable-next-line no-underscore-dangle
                                 onClick={this.handleSelect(row)}
                               >
@@ -143,6 +168,57 @@ class FriendsList extends React.Component {
                               </TableCell>
                             </TableRow>
                           ))}
+                          {friends ? (
+                            <Query
+                              query={ADDED_FRIENDS}
+                              variables={{ email, friends }}
+                              pollInterval={300}
+                            >
+                              {({ loading, error, data }) => {
+                                if (loading)
+                                  return (
+                                    <p>
+                                      <CircularProgress
+                                        size={24}
+                                        thickness={4}
+                                      />
+                                    </p>
+                                  );
+                                if (error)
+                                  return <p>`error...${error.message}`</p>;
+                                Object.values(data.getFriends).forEach(res => {
+                                  if (typeof res === "object") {
+                                    addedFriends = res;
+                                    console.log("!!!!", addedFriends);
+                                  }
+                                });
+                                return (
+                                  !loading && (
+                                    <>
+                                      {addedFriends.map(row => (
+                                        <TableRow
+                                          className={classes.row}
+                                          key={row}
+                                          hover
+                                        >
+                                          <TableCell
+                                            align="center"
+                                            key={row}
+                                            // eslint-disable-next-line no-underscore-dangle
+                                            onClick={this.handleSelect(row)}
+                                          >
+                                            {row}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </>
+                                  )
+                                );
+                              }}
+                            </Query>
+                          ) : (
+                            ""
+                          )}
                         </TableBody>
                       </Table>
                     </div>

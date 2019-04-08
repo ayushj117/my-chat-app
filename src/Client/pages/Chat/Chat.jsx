@@ -102,7 +102,8 @@ class Chat extends React.Component {
   handleBack = e => {
     e.preventDefault();
     const { history } = this.props;
-    history.push(`/`);
+    const email = localStorage.getItem('email');
+    history.push(`/login/${email}`);
   };
 
   render() {
@@ -136,14 +137,6 @@ class Chat extends React.Component {
     const GET_MESSAGES = gql`
       query MESSAGES($name: String!, $email: String!) {
         getMessage(to: $name, from: $email) {
-          toMessage
-        }
-      }
-    `;
-
-    const MESSAGE_SUBSCRIPTION = gql`
-      subscription messageAdded($email: String!) {
-        messageAdded(from: $email) {
           toMessage
         }
       }
